@@ -1,0 +1,262 @@
+# Cloud Service Fingerprints
+version: 1.0
+updated: "2025-01-01"
+
+services:
+  - name: AWS S3
+    cname_patterns:
+      - ".s3.amazonaws.com"
+      - ".s3-website"
+      - ".s3-website-"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "NoSuchBucket"
+          - "The specified bucket does not exist"
+    headers:
+      Server: "AmazonS3"
+    claim_url: "https://console.aws.amazon.com/s3"
+    remediation: "Recreate the S3 bucket or remove the DNS record"
+    severity: "CRITICAL"
+
+  - name: AWS CloudFront
+    cname_patterns:
+      - ".cloudfront.net"
+    http_checks:
+      - status: 403
+        body_patterns:
+          - "The request could not be satisfied"
+          - "BadRequest"
+      - status: 404
+    headers:
+      Server: "CloudFront"
+    claim_url: "https://console.aws.amazon.com/cloudfront"
+    remediation: "Recreate the CloudFront distribution or remove the DNS record"
+    severity: "CRITICAL"
+
+  - name: AWS API Gateway
+    cname_patterns:
+      - ".execute-api."
+    http_checks:
+      - status: 403
+        body_patterns:
+          - "Missing Authentication Token"
+    headers:
+      x-amzn-ErrorType: "MissingAuthenticationTokenException"
+    claim_url: "https://console.aws.amazon.com/apigateway"
+    remediation: "Recreate the API Gateway endpoint or remove the DNS record"
+    severity: "HIGH"
+
+  - name: AWS Elastic Beanstalk
+    cname_patterns:
+      - ".elasticbeanstalk.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "404 Not Found"
+          - "ElasticBeanstalk"
+    claim_url: "https://console.aws.amazon.com/elasticbeanstalk"
+    remediation: "Recreate the Elastic Beanstalk environment or remove DNS"
+    severity: "HIGH"
+
+  - name: Azure App Service
+    cname_patterns:
+      - ".azurewebsites.net"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "404 - Web Site not found"
+          - "Azure Web App - Not Found"
+    headers:
+      Server: "Microsoft-IIS"
+    claim_url: "https://portal.azure.com"
+    remediation: "Recreate the App Service or remove the DNS record"
+    severity: "CRITICAL"
+
+  - name: Azure CDN
+    cname_patterns:
+      - ".azureedge.net"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "The resource you are looking for has been removed"
+    claim_url: "https://portal.azure.com"
+    remediation: "Recreate the CDN endpoint or remove DNS"
+    severity: "HIGH"
+
+  - name: Azure Blob Storage
+    cname_patterns:
+      - ".blob.core.windows.net"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "The specified container does not exist"
+    claim_url: "https://portal.azure.com"
+    remediation: "Recreate the blob container or remove DNS"
+    severity: "CRITICAL"
+
+  - name: Google Cloud Storage
+    cname_patterns:
+      - "storage.googleapis.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "NoSuchBucket"
+          - "The specified bucket does not exist"
+    claim_url: "https://console.cloud.google.com/storage"
+    remediation: "Recreate the GCS bucket or remove DNS"
+    severity: "CRITICAL"
+
+  - name: Google App Engine
+    cname_patterns:
+      - ".appspot.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Error: Not Found"
+          - "The requested URL / was not found on this server"
+    claim_url: "https://console.cloud.google.com/appengine"
+    remediation: "Recreate the App Engine app or remove DNS"
+    severity: "HIGH"
+
+  - name: Firebase Hosting
+    cname_patterns:
+      - ".firebaseapp.com"
+      - ".web.app"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Not Found"
+          - "Firebase Hosting Site Not Found"
+    claim_url: "https://console.firebase.google.com"
+    remediation: "Recreate the Firebase project or remove DNS"
+    severity: "HIGH"
+
+  - name: DigitalOcean App Platform
+    cname_patterns:
+      - ".ondigitalocean.app"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "App not found"
+    claim_url: "https://cloud.digitalocean.com"
+    remediation: "Recreate the app or remove DNS"
+    severity: "HIGH"
+
+  - name: DigitalOcean Spaces
+    cname_patterns:
+      - ".digitaloceanspaces.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "NoSuchBucket"
+    claim_url: "https://cloud.digitalocean.com/spaces"
+    remediation: "Recreate the Spaces bucket or remove DNS"
+    severity: "CRITICAL"
+
+  - name: Heroku
+    cname_patterns:
+      - ".herokuapp.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "No such app"
+          - "Heroku | No such app"
+    claim_url: "https://dashboard.heroku.com"
+    remediation: "Recreate the Heroku app or remove DNS"
+    severity: "HIGH"
+
+  - name: Vercel
+    cname_patterns:
+      - ".vercel.app"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "The page could not be found"
+          - "404: This page could not be found"
+    claim_url: "https://vercel.com"
+    remediation: "Recreate the Vercel project or remove DNS"
+    severity: "HIGH"
+
+  - name: Netlify
+    cname_patterns:
+      - ".netlify.app"
+      - ".netlify.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Not Found - Request ID:"
+          - "Page not found"
+    claim_url: "https://app.netlify.com"
+    remediation: "Recreate the Netlify site or remove DNS"
+    severity: "HIGH"
+
+  - name: Shopify
+    cname_patterns:
+      - ".myshopify.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Sorry, this shop is currently unavailable"
+    claim_url: "https://www.shopify.com"
+    remediation: "Recreate the Shopify store or remove DNS"
+    severity: "MEDIUM"
+
+  - name: WordPress.com
+    cname_patterns:
+      - ".wordpress.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Do you want to register"
+          - "No site configured at this address"
+    claim_url: "https://wordpress.com/start"
+    remediation: "Recreate the WordPress site or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Tumblr
+    cname_patterns:
+      - ".tumblr.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "There's nothing here"
+    claim_url: "https://www.tumblr.com"
+    remediation: "Recreate the Tumblr blog or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Ghost
+    cname_patterns:
+      - ".ghost.io"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "404 - Page not found"
+          - "There's no site here"
+    claim_url: "https://ghost.org"
+    remediation: "Recreate the Ghost blog or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Squarespace
+    cname_patterns:
+      - ".squarespace.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "No Such Account"
+          - "This site is no longer available"
+    claim_url: "https://www.squarespace.com"
+    remediation: "Recreate the Squarespace site or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Wix
+    cname_patterns:
+      - ".wixsite.com"
+      - ".wix.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "This site is not published"
+    claim_url: "https://www.wix.com"
+    remediation: "Recreate the Wix site or remove DNS"
+    severity: "MEDIUM"

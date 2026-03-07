@@ -1,0 +1,312 @@
+{{define "content"}}
+<div class="dashboard">
+    <!-- Header Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-content">
+                <div class="stat-value">{{.TotalScanned}}</div>
+                <div class="stat-label">Domains Scanned</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-content">
+                <div class="stat-value">{{.Stats.Vulnerabilities}}</div>
+                <div class="stat-label">Vulnerabilities</div>
+            </div>
+        </div>
+        <div class="stat-card critical">
+            <div class="stat-icon">🔴</div>
+            <div class="stat-content">
+                <div class="stat-value">{{.Stats.CriticalCount}}</div>
+                <div class="stat-label">Critical</div>
+            </div>
+        </div>
+        <div class="stat-card high">
+            <div class="stat-icon">🟠</div>
+            <div class="stat-content">
+                <div class="stat-value">{{.Stats.HighCount}}</div>
+                <div class="stat-label">High</div>
+            </div>
+        </div>
+        <div class="stat-card medium">
+            <div class="stat-icon">🟡</div>
+            <div class="stat-content">
+                <div class="stat-value">{{.Stats.MediumCount}}</div>
+                <div class="stat-label">Medium</div>
+            </div>
+        </div>
+        <div class="stat-card low">
+            <div class="stat-icon">🟢</div>
+            <div class="stat-content">
+                <div class="stat-value">{{.Stats.LowCount}}</div>
+                <div class="stat-label">Low</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <h3>Vulnerabilities by Severity</h3>
+            <canvas id="severityChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Vulnerabilities by Service</h3>
+            <canvas id="serviceChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Scan Progress</h3>
+            <canvas id="progressChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Live Results -->
+    <div class="results-section">
+        <div class="section-header">
+            <h2>Live Findings</h2>
+            <div class="live-indicator">
+                <span class="live-dot"></span>
+                <span>LIVE</span>
+            </div>
+        </div>
+        
+        <div class="filter-bar">
+            <input type="text" id="searchInput" placeholder="Search domains..." class="filter-input">
+            <select id="severityFilter" class="filter-select">
+                <option value="">All Severities</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="LOW">Low</option>
+            </select>
+            <select id="serviceFilter" class="filter-select">
+                <option value="">All Services</option>
+                {{range $service := .Stats.ByService}}
+                <option value="{{$service}}">{{$service}}</option>
+                {{end}}
+            </select>
+            <button id="exportBtn" class="btn btn-primary">Export CSV</button>
+        </div>
+
+        <div class="table-container">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Domain</th>
+                        <th>Service</th>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Discovered</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    {{range .Findings}}
+                    <tr class="severity-{{.Severity | lower}}">
+                        <td class="domain-cell">{{.Domain}}</td>
+                        <td>{{.Service}}</td>
+                        <td>{{.Type}}</td>
+                        <td><span class="severity-badge {{.Severity | lower}}">{{.Severity}}</span></td>
+                        <td>{{.Discovered.Format "15:04:05"}}</td>
+                        <td>
+                            <button class="btn-small view-btn" onclick="viewFinding('{{.ID}}')">View</button>
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="6" class="no-results">No vulnerabilities found yet</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize charts
+    document.addEventListener('DOMContentLoaded', function() {
+        // Severity Chart
+        const severityCtx = document.getElementById('severityChart').getContext('2d');
+        new Chart(severityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Critical', 'High', 'Medium', 'Low'],
+                datasets: [{
+                    data: [
+                        {{.Stats.CriticalCount}},
+                        {{.Stats.HighCount}},
+                        {{.Stats.MediumCount}},
+                        {{.Stats.LowCount}}
+                    ],
+                    backgroundColor: [
+                        '#dc3545',
+                        '#fd7e14',
+                        '#ffc107',
+                        '#28a745'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Service Chart
+        const serviceCtx = document.getElementById('serviceChart').getContext('2d');
+        new Chart(serviceCtx, {
+            type: 'bar',
+            data: {
+                labels: [{{range $service, $count := .Stats.ByService}}'{{$service}}',{{end}}],
+                datasets: [{
+                    label: 'Vulnerabilities',
+                    data: [{{range $service, $count := .Stats.ByService}}{{$count}},{{end}}],
+                    backgroundColor: '#0d6efd'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Progress Chart
+        const progressCtx = document.getElementById('progressChart').getContext('2d');
+        new Chart(progressCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Findings Over Time',
+                    data: [],
+                    borderColor: '#0d6efd',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+    // WebSocket connection for live updates
+    const ws = new WebSocket('ws://' + window.location.host + '/ws');
+    
+    ws.onmessage = function(event) {
+        const finding = JSON.parse(event.data);
+        addFindingToTable(finding);
+        updateStats(finding);
+    };
+
+    function addFindingToTable(finding) {
+        const tbody = document.getElementById('resultsBody');
+        const newRow = document.createElement('tr');
+        newRow.className = 'severity-' + finding.Severity.toLowerCase();
+        newRow.innerHTML = `
+            <td class="domain-cell">${finding.Domain}</td>
+            <td>${finding.Service}</td>
+            <td>${finding.Type}</td>
+            <td><span class="severity-badge ${finding.Severity.toLowerCase()}">${finding.Severity}</span></td>
+            <td>${new Date().toLocaleTimeString()}</td>
+            <td><button class="btn-small view-btn" onclick="viewFinding('${finding.ID}')">View</button></td>
+        `;
+        
+        // Remove "no results" row if present
+        const noResults = tbody.querySelector('.no-results');
+        if (noResults) {
+            noResults.closest('tr').remove();
+        }
+        
+        tbody.prepend(newRow);
+    }
+
+    function updateStats(finding) {
+        // Update stat cards
+        const vulnCount = document.querySelector('.stat-card:nth-child(2) .stat-value');
+        vulnCount.textContent = parseInt(vulnCount.textContent) + 1;
+        
+        // Update severity specific counter
+        const severityMap = {
+            'CRITICAL': '.stat-card.critical .stat-value',
+            'HIGH': '.stat-card.high .stat-value',
+            'MEDIUM': '.stat-card.medium .stat-value',
+            'LOW': '.stat-card.low .stat-value'
+        };
+        
+        const counter = document.querySelector(severityMap[finding.Severity]);
+        if (counter) {
+            counter.textContent = parseInt(counter.textContent) + 1;
+        }
+    }
+
+    function viewFinding(id) {
+        window.location.href = '/finding/' + id;
+    }
+
+    // Filter functionality
+    document.getElementById('searchInput').addEventListener('keyup', filterTable);
+    document.getElementById('severityFilter').addEventListener('change', filterTable);
+    document.getElementById('serviceFilter').addEventListener('change', filterTable);
+
+    function filterTable() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const severity = document.getElementById('severityFilter').value;
+        const service = document.getElementById('serviceFilter').value;
+        
+        const rows = document.querySelectorAll('#resultsBody tr');
+        
+        rows.forEach(row => {
+            if (row.querySelector('.no-results')) return;
+            
+            const domain = row.cells[0].textContent.toLowerCase();
+            const rowSeverity = row.cells[3].textContent.trim();
+            const rowService = row.cells[1].textContent;
+            
+            let show = true;
+            
+            if (search && !domain.includes(search)) show = false;
+            if (severity && rowSeverity !== severity) show = false;
+            if (service && rowService !== service) show = false;
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    // Export functionality
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        window.location.href = '/api/export/csv';
+    });
+</script>
+{{end}}

@@ -1,0 +1,93 @@
+version: 1.0
+updated: "2025-01-01"
+services:
+  - name: AWS S3
+    cname_patterns:
+      - ".s3.amazonaws.com"
+      - ".s3-website"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "NoSuchBucket"
+          - "The specified bucket does not exist"
+    claim_url: "https://console.aws.amazon.com/s3"
+    remediation: "Recreate the S3 bucket or remove DNS"
+    severity: "CRITICAL"
+
+  - name: AWS CloudFront
+    cname_patterns:
+      - ".cloudfront.net"
+    http_checks:
+      - status: 403
+        body_patterns:
+          - "The request could not be satisfied"
+      - status: 404
+    claim_url: "https://console.aws.amazon.com/cloudfront"
+    remediation: "Recreate the CloudFront distribution"
+    severity: "CRITICAL"
+
+  - name: GitHub Pages
+    cname_patterns:
+      - ".github.io"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "There isn't a GitHub Pages site here"
+    claim_url: "https://github.com/new"
+    remediation: "Recreate the GitHub Pages site"
+    severity: "HIGH"
+
+  - name: Azure App Service
+    cname_patterns:
+      - ".azurewebsites.net"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "404 - Web Site not found"
+    claim_url: "https://portal.azure.com"
+    remediation: "Recreate the App Service"
+    severity: "CRITICAL"
+
+  - name: Google Cloud Storage
+    cname_patterns:
+      - "storage.googleapis.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "NoSuchBucket"
+    claim_url: "https://console.cloud.google.com/storage"
+    remediation: "Recreate the GCS bucket"
+    severity: "CRITICAL"
+
+  - name: Heroku
+    cname_patterns:
+      - ".herokuapp.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "No such app"
+    claim_url: "https://dashboard.heroku.com"
+    remediation: "Recreate the Heroku app"
+    severity: "HIGH"
+
+  - name: Mailgun
+    cname_patterns:
+      - ".mailgun.org"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://app.mailgun.com"
+    remediation: "Recreate the Mailgun domain"
+    severity: "HIGH"
+
+  - name: SendGrid
+    cname_patterns:
+      - ".sendgrid.net"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "The domain you are trying to access is not configured"
+    claim_url: "https://app.sendgrid.com"
+    remediation: "Reconfigure SendGrid domain"
+    severity: "HIGH"

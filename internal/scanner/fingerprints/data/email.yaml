@@ -1,0 +1,149 @@
+# Email Service Fingerprints
+version: 1.0
+updated: "2025-01-01"
+
+services:
+  - name: Mailgun
+    cname_patterns:
+      - ".mailgun.org"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://app.mailgun.com"
+    remediation: "Recreate the Mailgun domain or remove the DNS record"
+    severity: "HIGH"
+
+  - name: SendGrid
+    cname_patterns:
+      - ".sendgrid.net"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "The domain you are trying to access is not configured"
+    claim_url: "https://app.sendgrid.com"
+    remediation: "Reconfigure SendGrid domain or remove the DNS record"
+    severity: "HIGH"
+
+  - name: SparkPost
+    cname_patterns:
+      - ".sparkpostmail.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://app.sparkpost.com"
+    remediation: "Recreate the SparkPost domain or remove DNS"
+    severity: "HIGH"
+
+  - name: Amazon SES
+    cname_patterns:
+      - ".amazonses.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain does not exist"
+    claim_url: "https://console.aws.amazon.com/ses"
+    remediation: "Recreate the SES domain identity or remove DNS"
+    severity: "HIGH"
+
+  - name: Mailchimp
+    cname_patterns:
+      - ".mandrillapp.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://mailchimp.com"
+    remediation: "Reconfigure Mailchimp domain or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Mailjet
+    cname_patterns:
+      - ".mailjet.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://app.mailjet.com"
+    remediation: "Recreate the Mailjet domain or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Sendinblue
+    cname_patterns:
+      - ".sendinblue.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://app.sendinblue.com"
+    remediation: "Recreate the Sendinblue domain or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Google Workspace (Gmail)
+    cname_patterns:
+      - "google.com"
+    # Note: Google Workspace takeovers are rare but possible if domain is removed.
+    # We'll add a pattern but severity lower.
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://admin.google.com"
+    remediation: "Re-add domain to Google Workspace or remove DNS"
+    severity: "LOW"
+
+  - name: Office 365 (Microsoft)
+    cname_patterns:
+      - "mail.protection.outlook.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://admin.microsoft.com"
+    remediation: "Re-add domain to Office 365 or remove DNS"
+    severity: "LOW"
+
+  - name: Zoho Mail
+    cname_patterns:
+      - ".zoho.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://mail.zoho.com"
+    remediation: "Re-add domain to Zoho Mail or remove DNS"
+    severity: "LOW"
+
+  - name: ProtonMail
+    cname_patterns:
+      - ".protonmail.ch"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://protonmail.com"
+    remediation: "Re-add domain to ProtonMail or remove DNS"
+    severity: "LOW"
+
+  - name: FastMail
+    cname_patterns:
+      - ".fastmail.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://fastmail.com"
+    remediation: "Re-add domain to FastMail or remove DNS"
+    severity: "LOW"
+
+  - name: MXRoute
+    cname_patterns:
+      - ".mxroute.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Domain not found"
+    claim_url: "https://mxroute.com"
+    remediation: "Re-add domain to MXRoute or remove DNS"
+    severity: "LOW"

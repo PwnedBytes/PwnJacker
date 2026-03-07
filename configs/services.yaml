@@ -1,0 +1,7 @@
+services:
+  - name: AWS S3
+    cname_patterns: [".s3.amazonaws.com", ".s3-website"]
+    fingerprint: "NoSuchBucket"
+  - name: GitHub Pages
+    cname_patterns: [".github.io"]
+    fingerprint: "404 - File not found"

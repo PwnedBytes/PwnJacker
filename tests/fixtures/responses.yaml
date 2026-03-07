@@ -1,0 +1,5 @@
+- domain: test.s3.amazonaws.com
+  response:
+    status: 404
+    body: "NoSuchBucket"
+  expected: "AWS S3 Takeover"

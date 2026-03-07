@@ -1,0 +1,68 @@
+# PwnJacker Configuration
+
+scanner:
+  threads: 10
+  timeout: 10
+  retries: 3
+  follow_redirects: false
+  user_agent: "Mozilla/5.0 (compatible; PwnJacker/1.0; +https://github.com/PwnedBytes/PwnJacker)"
+
+detectors:
+  cname:
+    enabled: true
+    deep_check: true
+  
+  nxdomain:
+    enabled: true
+    check_registrable: true
+  
+  email:
+    enabled: false
+    spf: true
+    dkim: true
+    dmarc: true
+    mx: true
+  
+  cloud:
+    enabled: true
+    aws: true
+    azure: true
+    gcp: true
+    digitalocean: true
+  
+  wildcard:
+    enabled: true
+    detect_patterns: true
+
+dashboard:
+  enabled: true
+  port: ":8080"
+  refresh_interval: 5
+
+output:
+  formats:
+    - json
+    - markdown
+    - html
+    - csv
+  save_responses: false
+  max_body_size: 1024
+
+cache:
+  dns_ttl: 300
+  http_ttl: 600
+  max_size: 1000
+
+rate_limit:
+  requests_per_second: 100
+  burst: 50
+
+fingerprints:
+  auto_update: true
+  update_url: "https://raw.githubusercontent.com/PwnedBytes/PwnJacker/main/fingerprints.yaml"
+  local_path: "data/fingerprints/"
+
+checkpoint:
+  enabled: true
+  interval: 100
+  auto_resume: true

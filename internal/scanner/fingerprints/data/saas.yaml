@@ -1,0 +1,184 @@
+# SaaS Platform Fingerprints
+version: 1.0
+updated: "2025-01-01"
+
+services:
+  - name: GitHub Pages
+    cname_patterns:
+      - ".github.io"
+      - ".github.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "There isn't a GitHub Pages site here"
+          - "404 - File not found"
+    claim_url: "https://github.com/new"
+    remediation: "Recreate the GitHub Pages site or remove the DNS record"
+    severity: "HIGH"
+
+  - name: GitLab Pages
+    cname_patterns:
+      - ".gitlab.io"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "The page you're looking for could not be found"
+    claim_url: "https://gitlab.com/projects/new"
+    remediation: "Recreate the GitLab Pages site or remove DNS"
+    severity: "HIGH"
+
+  - name: ReadTheDocs
+    cname_patterns:
+      - ".readthedocs.io"
+      - ".readthedocs.org"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "No project found"
+          - "Project not found"
+    claim_url: "https://readthedocs.org"
+    remediation: "Recreate the ReadTheDocs project or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Surge.sh
+    cname_patterns:
+      - ".surge.sh"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "project not found"
+    claim_url: "https://surge.sh"
+    remediation: "Recreate the Surge project or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Bitbucket
+    cname_patterns:
+      - ".bitbucket.io"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Repository not found"
+    claim_url: "https://bitbucket.org"
+    remediation: "Recreate the Bitbucket Pages site or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Fastly
+    cname_patterns:
+      - ".fastly.net"
+    http_checks:
+      - status: 503
+        body_patterns:
+          - "Fastly error: unknown domain"
+    claim_url: "https://manage.fastly.com"
+    remediation: "Re-add the domain to Fastly or remove DNS"
+    severity: "HIGH"
+
+  - name: Cloudflare Workers
+    cname_patterns:
+      - ".workers.dev"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Worker not found"
+    claim_url: "https://dash.cloudflare.com"
+    remediation: "Recreate the Worker or remove DNS"
+    severity: "HIGH"
+
+  - name: Pantheon
+    cname_patterns:
+      - ".pantheonsite.io"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "404 - The requested site was not found"
+    claim_url: "https://dashboard.pantheon.io"
+    remediation: "Recreate the Pantheon site or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Acquia
+    cname_patterns:
+      - ".acquia-sites.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Site not found"
+    claim_url: "https://cloud.acquia.com"
+    remediation: "Recreate the Acquia site or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Tilda
+    cname_patterns:
+      - ".tilda.ws"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Page not found"
+    claim_url: "https://tilda.cc"
+    remediation: "Recreate the Tilda site or remove DNS"
+    severity: "LOW"
+
+  - name: UptimeRobot
+    cname_patterns:
+      - ".stats.uptimerobot.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "Page not found"
+    claim_url: "https://uptimerobot.com"
+    remediation: "Recreate the status page or remove DNS"
+    severity: "LOW"
+
+  - name: Statuspage (Atlassian)
+    cname_patterns:
+      - ".statuspage.io"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "No status page found"
+    claim_url: "https://www.statuspage.io"
+    remediation: "Recreate the status page or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Campaign Monitor
+    cname_patterns:
+      - ".createsend.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "The page you were looking for could not be found"
+    claim_url: "https://www.campaignmonitor.com"
+    remediation: "Recreate the email template or remove DNS"
+    severity: "LOW"
+
+  - name: Helpjuice
+    cname_patterns:
+      - ".helpjuice.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "We couldn't find that page"
+    claim_url: "https://helpjuice.com"
+    remediation: "Recreate the knowledge base or remove DNS"
+    severity: "LOW"
+
+  - name: Freshdesk
+    cname_patterns:
+      - ".freshdesk.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "No helpdesk found"
+    claim_url: "https://freshdesk.com"
+    remediation: "Recreate the helpdesk or remove DNS"
+    severity: "MEDIUM"
+
+  - name: Zendesk
+    cname_patterns:
+      - ".zendesk.com"
+    http_checks:
+      - status: 404
+        body_patterns:
+          - "We couldn't find that page"
+    claim_url: "https://zendesk.com"
+    remediation: "Recreate the Zendesk subdomain or remove DNS"
+    severity: "MEDIUM"

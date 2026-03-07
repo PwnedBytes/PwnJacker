@@ -1,0 +1,17 @@
+{{define "content"}}
+<div class="reports-page">
+  <h1>Reports</h1>
+  <div class="report-list">
+    {{range .Reports}}
+    <div class="report-item">
+      <span class="report-name">{{.Name}}</span>
+      <span class="report-date">{{.Date}}</span>
+      <a href="/reports/{{.ID}}" class="btn">View</a>
+      <a href="/reports/{{.ID}}/download" class="btn">Download</a>
+    </div>
+    {{else}}
+      <p>No reports yet.</p>
+      {{end}}
+  </div>
+</div>
+{{end}}

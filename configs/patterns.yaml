@@ -1,0 +1,12 @@
+patterns:
+  - "%s"
+  - "dev-%s"
+  - "%s-dev"
+  - "api-%s"
+  - "%s-api"
+  - "test-%s"
+  - "%s-test"
+  - "staging-%s"
+  - "%s-staging"
+  - "v1.%s"
+  - "%s-v1"
