@@ -98,7 +98,7 @@ cd PwnJacker
 ./scripts/install-termux.sh
 ```
 
-On Linux / macOS
+### On Linux / macOS
 
 ```bash
 # Clone the repository
@@ -112,7 +112,7 @@ make build
 make install
 ```
 
-Using Docker
+### Using Docker
 
 ```bash
 docker build -t pwnjacker .
