@@ -70,6 +70,10 @@ else
     cd "$PROJECT_DIR"
 fi
 
+# Remove existing go.sum to avoid checksum mismatches
+echo "🧹 Removing old go.sum to prevent checksum errors..."
+rm -f go.sum
+
 # Detect architecture for optimal build
 ARCH=$(uname -m)
 case $ARCH in
@@ -82,10 +86,9 @@ esac
 echo "🔍 Detected architecture: $ARCH → GOARCH=$GOARCH"
 
 # Tidy modules and download dependencies
-echo "🔧 Tidying Go modules..."
+echo "🔧 Tidying Go modules (this will regenerate go.sum)..."
 export GO111MODULE=on
 export CGO_ENABLED=0
-go mod download
 go mod tidy
 
 # Build PwnJacker
