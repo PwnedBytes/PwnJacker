@@ -26,15 +26,48 @@ mkdir -p $HOME/.config/pwnjacker
 mkdir -p $HOME/.cache/pwnjacker
 mkdir -p $HOME/.local/share/pwnjacker/fingerprints
 
-# Clone or update repository
-if [ -d "$HOME/pwnjacker" ]; then
-    echo "📥 Updating existing repository..."
-    cd $HOME/pwnjacker
-    git pull
+# Determine project directory (use current if it's a PwnJacker repo)
+if [ -f "cmd/pwnjacker/main.go" ]; then
+    PROJECT_DIR=$(pwd)
+    echo "📁 Using current directory: $PROJECT_DIR"
 else
-    echo "📥 Cloning PwnJacker..."
-    git clone https://github.com/PwnedBytes/PwnJacker.git $HOME/pwnjacker
-    cd $HOME/pwnjacker
+    PROJECT_DIR="$HOME/pwnjacker"
+    echo "📁 Will use $PROJECT_DIR"
+fi
+
+# Clone or update repository
+if [ -d "$PROJECT_DIR/.git" ]; then
+    echo "📥 Updating existing repository at $PROJECT_DIR..."
+    cd "$PROJECT_DIR"
+
+    # Stash any local changes (optional – comment out if you want to keep them)
+    if ! git diff --quiet; then
+        echo "⚠️  Local changes detected. Stashing them temporarily."
+        git stash push -m "auto-stash before install"
+        STASHED=1
+    fi
+
+    # Try to pull with rebase (avoids merge commits)
+    if ! git pull --rebase origin main; then
+        echo "⚠️  Pull failed. Attempting to fetch and reset to origin/main..."
+        git fetch origin
+        if git diff --quiet origin/main; then
+            echo "✅ Already up to date."
+        else
+            echo "⚠️  Your local branch has diverged. Resetting to origin/main (local changes will be lost)."
+            git reset --hard origin/main
+        fi
+    fi
+
+    # Restore stashed changes if any
+    if [ "$STASHED" = 1 ]; then
+        echo "📦 Restoring local changes."
+        git stash pop
+    fi
+else
+    echo "📥 Cloning PwnJacker into $PROJECT_DIR..."
+    git clone https://github.com/PwnedBytes/PwnJacker.git "$PROJECT_DIR"
+    cd "$PROJECT_DIR"
 fi
 
 # Detect architecture for optimal build

@@ -2,6 +2,8 @@
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/PwnedBytes/PwnJacker)](https://golang.org/)
 [![License](https://img.shields.io/github/license/PwnedBytes/PwnJacker)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/PwnedBytes/PwnJacker)](https://goreportcard.com/report/github.com/PwnedBytes/PwnJacker)
+[![GitHub stars](https://img.shields.io/github/stars/PwnedBytes/PwnJacker)](https://github.com/PwnedBytes/PwnJacker/stargazers)
 
 **PwnJacker** is an advanced subdomain hijacking vulnerability checker written in Go. It goes beyond basic CNAME takeover detection by incorporating email security analysis, cloud service misconfigurations, wildcard DNS detection, and supply‑chain risk assessment. Designed for ethical hackers and bug bounty hunters, PwnJacker runs efficiently on Termux (Android) and features a real‑time web dashboard.
 
