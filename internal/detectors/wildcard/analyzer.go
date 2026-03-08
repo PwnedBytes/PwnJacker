@@ -2,14 +2,22 @@ package wildcard
 
 import (
     "context"
+    "crypto/rand"
+    "encoding/hex"
     "net"
     "sync"
 )
 
-// DeepWildcardCheck tests multiple random subdomains to confirm wildcard.
+func generateRandomSub() string {
+    bytes := make([]byte, 8)
+    rand.Read(bytes)
+    return hex.EncodeToString(bytes)
+}
+
 func DeepWildcardCheck(ctx context.Context, domain string, count int) (bool, error) {
     var wg sync.WaitGroup
     results := make(chan bool, count)
+    
     for i := 0; i < count; i++ {
         wg.Add(1)
         go func() {
@@ -23,6 +31,7 @@ func DeepWildcardCheck(ctx context.Context, domain string, count int) (bool, err
             }
         }()
     }
+    
     wg.Wait()
     close(results)
 
@@ -32,6 +41,5 @@ func DeepWildcardCheck(ctx context.Context, domain string, count int) (bool, err
             positives++
         }
     }
-    // If more than 80% resolve, consider it a wildcard.
     return positives > count*8/10, nil
 }

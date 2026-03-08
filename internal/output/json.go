@@ -2,7 +2,6 @@ package output
 
 import (
     "encoding/json"
-    "fmt"
     "os"
     "time"
 

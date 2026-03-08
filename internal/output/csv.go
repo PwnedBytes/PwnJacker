@@ -2,7 +2,6 @@ package output
 
 import (
     "encoding/csv"
-    "fmt"
     "os"
     "strconv"
     "time"

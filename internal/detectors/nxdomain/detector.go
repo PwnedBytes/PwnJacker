@@ -7,7 +7,6 @@ import (
     "time"
 
     "PwnJacker/internal/models"
-    "PwnJacker/internal/utils"
 )
 
 type Detector struct {
