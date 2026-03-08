@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type OrphanedResource struct {
     Type        string `json:"type"`
     Resource    string `json:"resource"`
@@ -29,7 +31,7 @@ type HistoricalDNS struct {
 type DNSSnapshot struct {
     Timestamp   time.Time   `json:"timestamp"`
     Records     []DNSRecord `json:"records"`
-    Source      string      `json:"source"` // e.g., "SecurityTrails", "Censys", "DNSDumpster"
+    Source      string      `json:"source"`
 }
 
 type DNSChange struct {

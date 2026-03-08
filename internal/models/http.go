@@ -1,6 +1,5 @@
 package models
 
-// HTTPResponse holds details of an HTTP response.
 type HTTPResponse struct {
     StatusCode  int               `json:"status_code"`
     Headers     map[string]string `json:"headers"`

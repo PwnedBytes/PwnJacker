@@ -3,6 +3,7 @@ package utils
 import (
     "crypto/tls"
     "net/http"
+    "strings"
     "time"
 )
 
@@ -14,7 +15,7 @@ func NewHTTPClient(timeout time.Duration, followRedirects bool) *http.Client {
             MaxIdleConnsPerHost: 10,
             IdleConnTimeout:     90 * time.Second,
             TLSClientConfig: &tls.Config{
-                InsecureSkipVerify: true, // Skip SSL verification for faster scanning
+                InsecureSkipVerify: true,
             },
         },
     }
