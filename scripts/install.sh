@@ -72,12 +72,39 @@ fi
 
 # ========== PATCHES ==========
 
-# 1. Fix embed pattern in server.go (split into two lines)
+# 1. Fix embed directive in server.go by copying web files into dashboard and updating embed
+echo "🔧 Preparing embed files for dashboard..."
+
+# Create temporary copies of templates and static inside internal/dashboard
+mkdir -p internal/dashboard/templates
+mkdir -p internal/dashboard/static
+
+# Copy web files (if they exist)
+if [ -d "web/templates" ]; then
+    cp -r web/templates/* internal/dashboard/templates/
+else
+    echo "⚠️  web/templates not found, skipping."
+fi
+
+if [ -d "web/static" ]; then
+    cp -r web/static/* internal/dashboard/static/
+else
+    echo "⚠️  web/static not found, skipping."
+fi
+
+# Update server.go to use the new embed paths and remove old embed lines
 SERVER_FILE="internal/dashboard/server.go"
 if [ -f "$SERVER_FILE" ]; then
-    echo "🔧 Patching embed directive in $SERVER_FILE..."
-    # Use sed to replace the line with two separate embed directives
-    sed -i 's|//go:embed ../../web/templates/\* ../../web/static/\*|//go:embed ../../web/templates/*\n//go:embed ../../web/static/*|' "$SERVER_FILE"
+    echo "🔧 Updating embed directive in $SERVER_FILE..."
+    # Replace the old embed lines with a single line embedding the copied folders
+    # Use sed to replace the whole block (from the first //go:embed to the var content line)
+    sed -i '/^\/\/go:embed/,/var content embed.FS/c\
+//go:embed templates/* static/*\
+var content embed.FS' "$SERVER_FILE"
+
+    # Also update template parsing paths to remove the "web/" prefix
+    sed -i 's|"web/templates/|"templates/|g' "$SERVER_FILE"
+    sed -i 's|"web/static/|"static/|g' "$SERVER_FILE"
 else
     echo "⚠️  $SERVER_FILE not found, skipping embed patch."
 fi
