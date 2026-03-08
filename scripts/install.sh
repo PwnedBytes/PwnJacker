@@ -1,6 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# scripts/install-termux.sh – Clean PwnJacker installer for Termux
-# No patches – uses code directly from GitHub
+# scripts/install-termux.sh – Robust PwnJacker installer for Termux
 
 set -e
 
@@ -33,7 +32,30 @@ PROJECT_DIR="$HOME/PwnJacker"
 if [ -d "$PROJECT_DIR/.git" ]; then
     echo "📥 Updating existing repository at $PROJECT_DIR..."
     cd "$PROJECT_DIR"
-    git pull --rebase origin main
+    
+    # Check for unstaged changes and handle them
+    if ! git diff --quiet HEAD; then
+        echo "⚠️  Detected unstaged changes. Stashing them..."
+        git stash push -m "auto-backup-$(date +%s)"
+        STASHED=1
+    else
+        STASHED=0
+    fi
+    
+    # Now safe to pull
+    git pull --rebase origin main || {
+        echo "❌ Git pull failed. Attempting fresh clone..."
+        cd "$HOME"
+        rm -rf "$PROJECT_DIR"
+        git clone https://github.com/PwnedBytes/PwnJacker.git "$PROJECT_DIR"
+        cd "$PROJECT_DIR"
+    }
+    
+    # Restore stashed changes if we stashed them
+    if [ "$STASHED" = "1" ]; then
+        echo "📤 Restoring stashed changes..."
+        git stash pop || echo "⚠️  Could not restore stashed changes (may have conflicts)"
+    fi
 else
     echo "📥 Cloning PwnJacker into $PROJECT_DIR..."
     git clone https://github.com/PwnedBytes/PwnJacker.git "$PROJECT_DIR"
@@ -69,11 +91,13 @@ elif [ -d "internal/scanner/fingerprints/data" ]; then
     cp internal/scanner/fingerprints/data/*.yaml $HOME/.local/share/pwnjacker/fingerprints/
 fi
 
-# Create alias
-if ! grep -q "alias pwnjacker=" $HOME/.bashrc; then
+# Create alias (only if not exists)
+if ! grep -q "alias pwnjacker=" $HOME/.bashrc 2>/dev/null; then
     echo "alias pwnjacker='pwnjacker'" >> $HOME/.bashrc
 fi
 
-echo "✅ PwnJacker installed successfully!"
 echo ""
+echo "✅ PwnJacker installed successfully!"
 echo "Usage: pwnjacker -l subdomains.txt [options]"
+echo ""
+echo "📝 To use immediately, run: source ~/.bashrc"
