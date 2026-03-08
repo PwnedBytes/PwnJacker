@@ -1,5 +1,5 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# scripts/install-termux.sh – PwnJacker installer for Termux
+# scripts/install.sh – PwnJacker installer for Termux
 
 set -e  # Exit on any error
 
@@ -70,8 +70,86 @@ else
     cd "$PROJECT_DIR"
 fi
 
-# Remove existing go.sum to avoid checksum mismatches
-echo "🧹 Removing old go.sum to prevent checksum errors..."
+# ========== PATCHES ==========
+
+# 1. Fix embed pattern in server.go (split into two lines)
+SERVER_FILE="internal/dashboard/server.go"
+if [ -f "$SERVER_FILE" ]; then
+    echo "🔧 Patching embed directive in $SERVER_FILE..."
+    # Use sed to replace the line with two separate embed directives
+    sed -i 's|//go:embed ../../web/templates/\* ../../web/static/\*|//go:embed ../../web/templates/*\n//go:embed ../../web/static/*|' "$SERVER_FILE"
+else
+    echo "⚠️  $SERVER_FILE not found, skipping embed patch."
+fi
+
+# 2. Create missing registry package if it doesn't exist
+REGISTRY_DIR="internal/detectors/registry"
+REGISTRY_FILE="$REGISTRY_DIR/registry.go"
+if [ ! -f "$REGISTRY_FILE" ]; then
+    echo "🔧 Creating missing registry package at $REGISTRY_FILE..."
+    mkdir -p "$REGISTRY_DIR"
+    cat > "$REGISTRY_FILE" << 'EOF'
+package registry
+
+import (
+    "context"
+    "sync"
+
+    "PwnJacker/internal/detectors/cname"
+    "PwnJacker/internal/detectors/cloud"
+    "PwnJacker/internal/detectors/email"
+    "PwnJacker/internal/detectors/nxdomain"
+    "PwnJacker/internal/detectors/wildcard"
+    "PwnJacker/internal/models"
+)
+
+type Detector interface {
+    Name() string
+    Detect(ctx context.Context, domain string) *models.Vulnerability
+    IsEnabled() bool
+}
+
+var (
+    detectors []Detector
+    once      sync.Once
+)
+
+func InitializeDetectors(deepScan, checkEmail bool) []Detector {
+    once.Do(func() {
+        detectors = append(detectors,
+            cname.NewDetector(),
+            nxdomain.NewDetector(),
+            wildcard.NewDetector(),
+        )
+
+        detectors = append(detectors,
+            cloud.NewAWSDetector(),
+            cloud.NewAzureDetector(),
+            cloud.NewGCPDetector(),
+            cloud.NewDigitalOceanDetector(),
+        )
+
+        if checkEmail {
+            detectors = append(detectors,
+                email.NewSPFDetector(),
+                email.NewDKIMDetector(),
+                email.NewDMARCDetector(),
+                email.NewMXDetector(),
+            )
+        }
+
+        // Add deep scan detectors if needed (placeholder)
+        _ = deepScan
+    })
+    return detectors
+}
+EOF
+else
+    echo "✅ Registry package already exists."
+fi
+
+# Remove old go.sum to avoid checksum mismatches
+echo "🧹 Removing old go.sum..."
 rm -f go.sum
 
 # Detect architecture for optimal build
